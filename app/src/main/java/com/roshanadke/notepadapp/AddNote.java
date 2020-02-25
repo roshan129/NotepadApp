@@ -3,7 +3,9 @@ package com.roshanadke.notepadapp;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -13,14 +15,18 @@ import com.roshanadke.notepadapp.db.DatabaseHelper;
 import com.roshanadke.notepadapp.model.NotesList;
 import com.roshanadke.notepadapp.utils.NoteUtils;
 
+import java.util.Currency;
 import java.util.Date;
 
 public class AddNote extends AppCompatActivity {
+    private static final String TAG = "AddNote";
     Toolbar toolbar;
     EditText input_note;
     long date;
     DatabaseHelper databaseHelper;
 
+    private boolean flag;
+    private String existingTimestamp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,19 +41,29 @@ public class AddNote extends AppCompatActivity {
     }
 
     private void getIntentComponents() {
-        if (getIntent().hasExtra("text") && getIntent().hasExtra("date")) {
-            Bundle bundle = getIntent().getExtras();
-            String text = bundle.getString("text");
-            String date = bundle.getString("date");
-
-            loadNotes(text, date);
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            existingTimestamp = bundle.getString("timeinmillis");
+            if (existingTimestamp != null) {
+                Log.d(TAG, "getIntentComponents: " + existingTimestamp);
+                loadNotes(existingTimestamp);
+                flag = true;
+            }
+        } else {
+            flag = false;
         }
 
     }
 
-    private void loadNotes(String text, String date) {
+    private void loadNotes(String existingTimestamp) {
+        Cursor c = databaseHelper.getText(existingTimestamp);
+        if (c.getCount() != 0) {
+            c.moveToFirst();
 
-        input_note.setText(text);
+            String note = c.getString(c.getColumnIndex("NOTES_TEXT"));
+            input_note.setText(note);
+            input_note.setSelection(input_note.getText().length());
+        }
 
     }
 
@@ -68,22 +84,43 @@ public class AddNote extends AppCompatActivity {
     }
 
     private void onSaveNote() {
+        if (flag) {
+            String noteText = input_note.getText().toString();
+            if (!noteText.equals("")) {
+                date = new Date().getTime();
+                String dateTime = NoteUtils.stringFromDate(date);
 
-        String noteText = input_note.getText().toString();
-        if (noteText != "" && noteText != null) {
-            date = new Date().getTime();
-            String dateTime = NoteUtils.stringFromDate(date);
-            NotesList notesListObject = new NotesList(noteText, dateTime);
-            boolean result = databaseHelper.insertData(notesListObject);
-            if (result) {
-                Toast.makeText(this, "Note Added", Toast.LENGTH_SHORT).show();
+                NotesList notesListObject = new NotesList(noteText, dateTime, existingTimestamp);
+                boolean result = databaseHelper.updateData(notesListObject);
+                if (result) {
+                    Toast.makeText(this, "Note Added", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "error occured", Toast.LENGTH_SHORT).show();
+                }
+
+                finish();
             } else {
-                Toast.makeText(this, "error occured", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Enter note", Toast.LENGTH_SHORT).show();
             }
 
-            finish();
         } else {
-            Toast.makeText(this, "Enter note", Toast.LENGTH_SHORT).show();
+            String noteText = input_note.getText().toString();
+            if (!noteText.equals("")) {
+                date = new Date().getTime();
+                String dateTime = NoteUtils.stringFromDate(date);
+                String time = String.valueOf(System.currentTimeMillis());
+                NotesList notesListObject = new NotesList(noteText, dateTime, time);
+                boolean result = databaseHelper.insertData(notesListObject);
+                if (result) {
+                    Toast.makeText(this, "Note Added", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "error occured", Toast.LENGTH_SHORT).show();
+                }
+
+                finish();
+            } else {
+                Toast.makeText(this, "Enter note", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

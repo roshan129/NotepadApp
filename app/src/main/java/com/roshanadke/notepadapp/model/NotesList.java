@@ -4,10 +4,21 @@ public class NotesList {
 
     private String notesText;
     private String notesDate;
+    private String timeInMillis;
 
-    public NotesList(String notesText, String notesDate) {
+    public NotesList(String notesText, String notesDate, String timeInMillis) {
         this.notesText = notesText;
         this.notesDate = notesDate;
+        this.timeInMillis = timeInMillis;
+
+    }
+
+    public String getTimeInMillis() {
+        return timeInMillis;
+    }
+
+    public void setTimeInMillis(String timeInMillis) {
+        this.timeInMillis = timeInMillis;
     }
 
     public String getNotesText() {

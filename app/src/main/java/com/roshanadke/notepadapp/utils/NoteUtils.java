@@ -9,7 +9,7 @@ public class NoteUtils {
 
     public static String stringFromDate(long time){
 
-        DateFormat dateFormat= new SimpleDateFormat("EEE, dd-mm-yyyy 'at' hh:mm aaa", Locale.US);
+        DateFormat dateFormat= new SimpleDateFormat("EEE, MMM dd, yyyy 'at' hh:mm aaa", Locale.US);
         return dateFormat.format(new Date(time));
     }
 }

@@ -16,6 +16,7 @@
             android:id="@+id/toolbar2"
             android:layout_width="match_parent"
             app:title="@string/app_name"
+            app:titleTextColor="@color/white"
             android:layout_height="?attr/actionBarSize"
             android:theme="@style/ThemeOverlay.AppCompat.Light"
             app:layout_scrollFlags="scroll|enterAlways" />
@@ -35,9 +36,12 @@
             android:layout_height="match_parent"
             android:layout_gravity="top"
             android:background="#fff"
+            android:padding="12dp"
             android:ems="10"
             android:gravity="top"
-            android:inputType="textMultiLine" />
+            android:textColor="@color/black"
+            android:inputType="textMultiLine"
+             />
 
     </com.google.android.material.textfield.TextInputLayout>
 

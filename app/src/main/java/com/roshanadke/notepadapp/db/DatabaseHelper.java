@@ -23,7 +23,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-            db.execSQL("CREATE TABLE "+TABLE_NAME+"(NOTEID INTEGER PRIMARY KEY AUTOINCREMENT,NOTES_TEXT TEXT,NOTES_DATE TEXT)");
+            db.execSQL("CREATE TABLE "+TABLE_NAME+"(NOTEID INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "NOTES_TEXT TEXT,NOTES_DATE TEXT, TIME_IN_MILLIS TEXT)");
 
     }
 
@@ -40,6 +41,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put("NOTES_TEXT",object.getNotesText());
         contentValues.put("NOTES_DATE",object.getNotesDate());
+        contentValues.put("TIME_IN_MILLIS",object.getTimeInMillis());
 
         Log.d("SSSS",object.getNotesText());
 
@@ -50,6 +52,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         else
             return true;
     }
+
+    public  boolean updateData(NotesList object)
+    {
+        SQLiteDatabase sqLiteDatabase=this.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("NOTES_TEXT",object.getNotesText());
+        contentValues.put("NOTES_DATE",object.getNotesDate());
+
+        Log.d("SSSS",object.getNotesText());
+
+        long result = sqLiteDatabase.update(TABLE_NAME,contentValues, "TIME_IN_MILLIS = ?",
+                new String[]{object.getTimeInMillis()});
+
+        if (result==-1)
+            return  false;
+        else
+            return true;
+    }
+
 
     //==============Select data============================
     public Cursor getData(String id)
@@ -63,6 +85,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
+
+    public Cursor getText(String time)
+    {
+        SQLiteDatabase sqLiteDatabase=this.getWritableDatabase();
+
+        String query ="SELECT * FROM " +TABLE_NAME+ " WHERE TIME_IN_MILLIS LIKE '" + time + "'";
+
+        Cursor cursor = sqLiteDatabase.rawQuery(query,null);
+
+        return cursor;
+    }
 
     public Cursor showData()
     {

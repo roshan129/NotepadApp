@@ -27,6 +27,7 @@ import java.util.List;
 import javax.security.auth.login.LoginException;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
     FloatingActionButton floatingActionButton;
     RecyclerView recyclerView;
     CustomAdapter customAdapter;
@@ -79,7 +80,8 @@ public class MainActivity extends AppCompatActivity {
             do {
                 String Text1 = c.getString(1);
                 String Date1 = c.getString(2);
-                NotesList obj1 = new NotesList(Text1, Date1);
+                String time = c.getString(3);
+                NotesList obj1 = new NotesList(Text1, Date1, time);
                 mainList.add(obj1);
                 Log.e("mainlist", mainList.toString());
 
@@ -103,10 +105,9 @@ public class MainActivity extends AppCompatActivity {
 
                 NotesList obj1 =  mainList.get(position);
                 Intent intent=new Intent(MainActivity.this, AddNote.class);
-                String text= obj1.getNotesText();
-                String date= obj1.getNotesDate();
-                intent.putExtra("text",text);
-                intent.putExtra("date",date);
+                String time= obj1.getTimeInMillis();
+                Log.d(TAG, "onItemClick: "+ time);
+                intent.putExtra("timeinmillis",time);
                 startActivity(intent);
 
 
