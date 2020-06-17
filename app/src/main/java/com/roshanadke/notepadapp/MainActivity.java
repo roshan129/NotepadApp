@@ -5,9 +5,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -51,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
         mainList = new ArrayList<>();
         db = new DatabaseHelper(this);
         fetchList();
@@ -64,11 +70,6 @@ public class MainActivity extends AppCompatActivity {
         onClickImplementations();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        fetchList();
-    }
 
     private void fetchList() {
         if (mainList != null) {
@@ -124,7 +125,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void alertDiaologShow(final int pos) {
-
         String[] array= {"Delete"};
         builder= new AlertDialog.Builder(this);
 
@@ -156,6 +156,37 @@ public class MainActivity extends AppCompatActivity {
         customAdapter.notifyDataSetChanged();
     }
 
+    private BroadcastReceiver networkStateReceiver=new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = manager.getActiveNetworkInfo();
+            doSomethingOnNetworkChange(networkInfo);
+        }
+    };
+
+    private void doSomethingOnNetworkChange(NetworkInfo networkInfo) {
+
+        if(networkInfo != null && networkInfo.isConnectedOrConnecting()){
+            Toast.makeText(this, "Network Connected", Toast.LENGTH_SHORT).show();
+        }else {
+            Toast.makeText(this, "Network Disconnected", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        fetchList();
+        registerReceiver(networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
+    }
+
+    @Override
+    public void onPause() {
+        Log.d(TAG, "onPause: here");
+        unregisterReceiver(networkStateReceiver);
+        super.onPause();
+    }
 
 }
 
